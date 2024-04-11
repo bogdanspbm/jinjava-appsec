@@ -1,0 +1,204 @@
+package jinjava.de.odysseus.el.tree.impl.ast;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import jinjava.de.odysseus.el.misc.LocalMessages;
+import jinjava.de.odysseus.el.tree.Bindings;
+import jinjava.de.odysseus.el.tree.IdentifierNode;
+import jinjava.javax.el.ELContext;
+import jinjava.javax.el.ELException;
+import jinjava.javax.el.MethodExpression;
+import jinjava.javax.el.MethodInfo;
+import jinjava.javax.el.MethodNotFoundException;
+import jinjava.javax.el.PropertyNotFoundException;
+import jinjava.javax.el.ValueExpression;
+import jinjava.javax.el.ValueReference;
+
+public class AstIdentifier extends AstNode implements IdentifierNode {
+   private final String name;
+   private final int index;
+   private final boolean ignoreReturnType;
+
+   public AstIdentifier(String name, int index) {
+      this(name, index, false);
+   }
+
+   public AstIdentifier(String name, int index, boolean ignoreReturnType) {
+      this.name = name;
+      this.index = index;
+      this.ignoreReturnType = ignoreReturnType;
+   }
+
+   public Class<?> getType(Bindings bindings, ELContext context) {
+      ValueExpression expression = bindings.getVariable(this.index);
+      if (expression != null) {
+         return expression.getType(context);
+      } else {
+         context.setPropertyResolved(false);
+         Class<?> result = context.getELResolver().getType(context, (Object)null, this.name);
+         if (!context.isPropertyResolved()) {
+            throw new PropertyNotFoundException(LocalMessages.get("error.identifier.property.notfound", this.name));
+         } else {
+            return result;
+         }
+      }
+   }
+
+   public boolean isLeftValue() {
+      return true;
+   }
+
+   public boolean isMethodInvocation() {
+      return false;
+   }
+
+   public boolean isLiteralText() {
+      return false;
+   }
+
+   public ValueReference getValueReference(Bindings bindings, ELContext context) {
+      ValueExpression expression = bindings.getVariable(this.index);
+      return expression != null ? expression.getValueReference(context) : new ValueReference((Object)null, this.name);
+   }
+
+   public Object eval(Bindings bindings, ELContext context) {
+      ValueExpression expression = bindings.getVariable(this.index);
+      if (expression != null) {
+         return expression.getValue(context);
+      } else {
+         context.setPropertyResolved(false);
+         Object result = context.getELResolver().getValue(context, (Object)null, this.name);
+         if (!context.isPropertyResolved()) {
+            throw new PropertyNotFoundException(LocalMessages.get("error.identifier.property.notfound", this.name));
+         } else {
+            return result;
+         }
+      }
+   }
+
+   public void setValue(Bindings bindings, ELContext context, Object value) {
+      ValueExpression expression = bindings.getVariable(this.index);
+      if (expression != null) {
+         expression.setValue(context, value);
+      } else {
+         context.setPropertyResolved(false);
+         Class<?> type = context.getELResolver().getType(context, (Object)null, this.name);
+         if (context.isPropertyResolved()) {
+            if (type != null && (value != null || type.isPrimitive())) {
+               value = bindings.convert(value, type);
+            }
+
+            context.setPropertyResolved(false);
+         }
+
+         context.getELResolver().setValue(context, (Object)null, this.name, value);
+         if (!context.isPropertyResolved()) {
+            throw new PropertyNotFoundException(LocalMessages.get("error.identifier.property.notfound", this.name));
+         }
+      }
+   }
+
+   public boolean isReadOnly(Bindings bindings, ELContext context) {
+      ValueExpression expression = bindings.getVariable(this.index);
+      if (expression != null) {
+         return expression.isReadOnly(context);
+      } else {
+         context.setPropertyResolved(false);
+         boolean result = context.getELResolver().isReadOnly(context, (Object)null, this.name);
+         if (!context.isPropertyResolved()) {
+            throw new PropertyNotFoundException(LocalMessages.get("error.identifier.property.notfound", this.name));
+         } else {
+            return result;
+         }
+      }
+   }
+
+   protected MethodExpression getMethodExpression(Bindings bindings, ELContext context, Class<?> returnType, Class<?>[] paramTypes) {
+      Object value = this.eval(bindings, context);
+      if (value == null) {
+         throw new MethodNotFoundException(LocalMessages.get("error.identifier.method.notfound", this.name));
+      } else if (value instanceof Method) {
+         final Method method = this.findAccessibleMethod((Method)value);
+         if (method == null) {
+            throw new MethodNotFoundException(LocalMessages.get("error.identifier.method.notfound", this.name));
+         } else if (!this.ignoreReturnType && returnType != null && !returnType.isAssignableFrom(method.getReturnType())) {
+            throw new MethodNotFoundException(LocalMessages.get("error.identifier.method.returntype", method.getReturnType(), this.name, returnType));
+         } else if (!Arrays.equals(method.getParameterTypes(), paramTypes)) {
+            throw new MethodNotFoundException(LocalMessages.get("error.identifier.method.notfound", this.name));
+         } else {
+            return new MethodExpression() {
+               private static final long serialVersionUID = 1L;
+
+               public boolean isLiteralText() {
+                  return false;
+               }
+
+               public String getExpressionString() {
+                  return null;
+               }
+
+               public int hashCode() {
+                  return 0;
+               }
+
+               public boolean equals(Object obj) {
+                  return obj == this;
+               }
+
+               public Object invoke(ELContext context, Object[] params) {
+                  try {
+                     return method.invoke((Object)null, params);
+                  } catch (IllegalAccessException var4) {
+                     throw new ELException(LocalMessages.get("error.identifier.method.access", AstIdentifier.this.name));
+                  } catch (IllegalArgumentException var5) {
+                     throw new ELException(LocalMessages.get("error.identifier.method.invocation", AstIdentifier.this.name, var5));
+                  } catch (InvocationTargetException var6) {
+                     throw new ELException(LocalMessages.get("error.identifier.method.invocation", AstIdentifier.this.name, var6.getCause()));
+                  }
+               }
+
+               public MethodInfo getMethodInfo(ELContext context) {
+                  return new MethodInfo(method.getName(), method.getReturnType(), method.getParameterTypes());
+               }
+            };
+         }
+      } else if (value instanceof MethodExpression) {
+         return (MethodExpression)value;
+      } else {
+         throw new MethodNotFoundException(LocalMessages.get("error.identifier.method.notamethod", this.name, value.getClass()));
+      }
+   }
+
+   public MethodInfo getMethodInfo(Bindings bindings, ELContext context, Class<?> returnType, Class<?>[] paramTypes) {
+      return this.getMethodExpression(bindings, context, returnType, paramTypes).getMethodInfo(context);
+   }
+
+   public Object invoke(Bindings bindings, ELContext context, Class<?> returnType, Class<?>[] paramTypes, Object[] params) {
+      return this.getMethodExpression(bindings, context, returnType, paramTypes).invoke(context, params);
+   }
+
+   public String toString() {
+      return this.name;
+   }
+
+   public void appendStructure(StringBuilder b, Bindings bindings) {
+      b.append(bindings != null && bindings.isVariableBound(this.index) ? "<var>" : this.name);
+   }
+
+   public int getIndex() {
+      return this.index;
+   }
+
+   public String getName() {
+      return this.name;
+   }
+
+   public int getCardinality() {
+      return 0;
+   }
+
+   public AstNode getChild(int i) {
+      return null;
+   }
+}

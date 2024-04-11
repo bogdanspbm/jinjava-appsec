@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Implementation-Title: jinjava
+Implementation-Version: 2.4.0
+Archiver-Version: Plexus Archiver
+Built-By: root
+Specification-Title: jinjava
+Implementation-Vendor-Id: com.hubspot.jinjava
+X-BasePOM-Build-Id: 44b94571-4c09-4169-a70b-fd4758b28267
+X-BasePOM-Name: jinjava
+Created-By: Apache Maven 3.3.9
+Build-Jdk: 1.8.0_65
+Specification-Version: 2.4.0
+Implementation-URL: https://github.com/HubSpot/jinjava
+X-BasePOM-Git-Commit-Id: 5347bdc4010a9568b37dc2799884a703dab15e05
+
+Name: com.hubspot.jinjava:jinjava
+Git-Branch: 5347bdc4010a9568b37dc2799884a703dab15e05
+Git-Commit-Id-Describe: jinjava-2.4.0-dirty
+Project-GroupId: com.hubspot.jinjava
+Git-Remote-Origin-Url: file:///usr/share/hubspot/build/workspace/jinja
+ va
+Project-Name: jinjava
+Project-ArtifactId: jinjava
+Build-Time: 2018-02-28T14:04:22+0000
+Project-Version: 2.4.0
+Git-Commit-Id: 5347bdc4010a9568b37dc2799884a703dab15e05
+
