@@ -1,0 +1,40 @@
+---
+sourceLocationPrefix: /home/oracle/Documents/GitHub/jinjava-appsec
+baselineLinesOfCode: 17225
+unicodeNewlines: false
+columnKind: utf16
+primaryLanguage: java
+inProgress:
+  primaryLanguage: java
+  installedExtractors:
+    ruby:
+     - /usr/local/codeql/ruby
+    properties:
+     - /usr/local/codeql/properties
+    cpp:
+     - /usr/local/codeql/cpp
+    python:
+     - /usr/local/codeql/python
+    swift:
+     - /usr/local/codeql/swift
+    xml:
+     - /usr/local/codeql/xml
+    csharp:
+     - /usr/local/codeql/csharp
+    csv:
+     - /usr/local/codeql/csv
+    java:
+     - /usr/local/codeql/java
+    yaml:
+     - /usr/local/codeql/yaml
+    javascript:
+     - /usr/local/codeql/javascript
+    html:
+     - /usr/local/codeql/html
+    go:
+     - /usr/local/codeql/go
+creationMetadata:
+  sha: 20f99ca7cf22dc1b7eb0e5762c3c1094081b52b4
+  cliVersion: 2.17.0
+  creationTime: 2024-04-11T08:23:11.859114483Z
+finalised: false

@@ -1,0 +1,8 @@
+rules:
+  - id: find-method-invoke
+    languages:
+      - java
+    patterns:
+      - pattern: (java.lang.reflect.Method $METHOD).invoke(...);
+    message: "Found method invocation: {{source}}"
+    severity: WARNING
