@@ -1,4 +1,4 @@
 {
-    "codeQL.createQuery.qlPackLocation": "/home/oracle/Documents/GitHub/jinjava-appsec",
+    "codeQL.createQuery.qlPackLocation": "d:\\GitHub\\jinjava-appsec",
     "java.compile.nullAnalysis.mode": "automatic"
 }

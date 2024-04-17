@@ -11,8 +11,8 @@
          exists(Method m, Parameter p|
              m.getDeclaringType().isPublic() and 
              m.isPublic() and 
-             p = m.getAParameter() and
-             p.getType().hasName("String") and
+             p.getCallable() = m and
+             p.getType() instanceof TypeString and
              this.asParameter() = p
              )
      }
@@ -21,8 +21,7 @@
  class ScriptEcho extends DataFlow::Node {
      ScriptEcho() {
          exists(MethodCall ma|
-             ma.getCallee().hasName("invoke") and
-             this.asExpr() = ma.getArgument(0)
+             ma.getCallee().hasName("contains")
              )
      }
  }
