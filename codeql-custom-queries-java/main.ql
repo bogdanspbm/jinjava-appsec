@@ -21,7 +21,7 @@
  class ScriptEcho extends DataFlow::Node {
      ScriptEcho() {
          exists(MethodCall ma|
-             ma.getCallee().hasName("resolveELExpression")
+             ma.getCallee().hasName("getValue")
              )
      }
  }
